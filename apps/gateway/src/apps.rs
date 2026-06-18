@@ -406,6 +406,24 @@ static APP_PROVIDERS: &[AppProvider] = &[
         body_transform: None,
     },
     AppProvider {
+        provider: "google-contacts",
+        display_name: "Google Contacts",
+        host_rules: &[HostRule {
+            pattern: HostPattern::Exact("people.googleapis.com"),
+            path_prefix: None,
+            strategy: AuthStrategy::Bearer,
+            intercept: false,
+            credential_host_field: None,
+        }],
+        refresh: Some(&GOOGLE_REFRESH),
+        metadata_headers: &[],
+        credential_headers: &[],
+        credential_params: &[],
+        host_rewrite: None,
+        finalizer: None,
+        body_transform: None,
+    },
+    AppProvider {
         provider: "google-docs",
         display_name: "Google Docs",
         host_rules: &[HostRule {
@@ -2024,6 +2042,10 @@ mod tests {
     #[test]
     fn providers_for_google_workspace_hosts() {
         assert_eq!(
+            providers_for_host("people.googleapis.com"),
+            vec!["google-contacts"]
+        );
+        assert_eq!(
             providers_for_host("docs.googleapis.com"),
             vec!["google-docs"]
         );
@@ -2117,6 +2139,7 @@ mod tests {
     #[test]
     fn google_workspace_apps_use_bearer() {
         let hosts = [
+            ("google-contacts", "people.googleapis.com"),
             ("google-docs", "docs.googleapis.com"),
             ("google-sheets", "sheets.googleapis.com"),
             ("google-slides", "slides.googleapis.com"),
